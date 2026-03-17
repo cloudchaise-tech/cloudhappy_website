@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Website</title>
+    <link href="https://fonts.googleapis.com/css2?family=Berkshire+Swash&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: 'Berkshire Swash', cursive; 
+            background-color: #223e5a; 
+            color: #fff; 
+        }
+
+        /* WELCOME SPLASH SCREEN */
+        #welcome-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
+            background: #121420; color: white; display: flex;
+            flex-direction: column; justify-content: center; align-items: center;
+            z-index: 2000; transition: opacity 0.5s ease;
+        }
+        .success-icon { color: #f1b933; font-size: 100px; margin-bottom: 10px; }
+        .back-link { 
+            color: #4a90e2; margin-top: 70px; text-decoration: none; 
+            border: 1px solid #4a90e2; padding: 10px 20px; border-radius: 5px;
+            cursor: pointer; transition: 0.3s;
+        }
+        .back-link:hover { background: rgba(74, 144, 226, 0.1); }
+
+        /* MAIN WEBSITE */
+        #main-content { display: none; }
+
+        nav {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            width: 90%; max-width: 1000px; background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px); padding: 12px 30px; border-radius: 50px;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2); z-index: 1000;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .logo { color: white; font-size: 1.5rem; }
+        .nav-links a { text-decoration: none; color: rgba(255,255,255,0.8); margin: 0 15px; cursor: pointer; font-size: 1rem; transition: 0.3s; }
+        .nav-links a:hover, .nav-links a.active { color: #fff; font-weight: 600; text-shadow: 0 0 10px rgba(255,255,255,0.5); }
+        
+        section {
+            display: none; height: 100vh; padding: 100px 10% 60px;
+            width: 100%; margin: 0 auto; align-items: center;
+            flex-direction: column; 
+            justify-content: center;
+            animation: fadeIn 0.5s ease; background: linear-gradient(to right, #b2d8e5, #223e5a);
+            color: white; overflow: hidden;
+        }
+
+        #about, #work { height: auto; min-height: 100vh; flex-direction: column; overflow-y: auto; display: none; }
+        section.active { display: flex; }
+        #about.active, #work.active { display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .content-box { z-index: 2; width: 100%; max-width: 800px; }
+        h1 { font-size: 3.5rem; line-height: 1.1; margin-bottom: 20px; color: white; }
+        p { font-size: 1.3rem; color: rgba(255, 255, 255, 0.9); margin-bottom: 30px; }
+
+        .gamer-card {
+            background: rgba(0, 0, 0, 0.3); border: 2px solid #b2d8e5; border-radius: 15px;
+            padding: 25px; margin: 20px auto 40px; max-width: 600px; text-align: left;
+            box-shadow: 0 0 20px rgba(178, 216, 229, 0.2);
+        }
+
+        .image-placeholder {
+            flex: none; width: 100%; max-width: 800px; margin: 20px auto 50px;
+            border-radius: 30px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            transition: transform 0.3s ease;
+        }
+        .image-placeholder img { width: 100%; height: auto; display: block; }
+        
+        .clickable-achievement:hover .image-placeholder {
+            transform: scale(1.02);
+            cursor: pointer;
+            border: 2px solid #f1b933;
+        }
+
+        /* MODAL STYLES */
+        .modal {
+            display: none; position: fixed; z-index: 3000; left: 0; top: 0;
+            width: 100%; height: 100%; background-color: rgba(0,0,0,0.85);
+            justify-content: center; align-items: center; padding: 20px;
+        }
+        .modal-content {
+            background: #223e5a; padding: 40px; border-radius: 20px;
+            max-width: 500px; text-align: center; border: 2px solid #b2d8e5;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s ease;
+        }
+        .modal-content h3 { font-size: 2rem; margin-bottom: 15px; color: #f1b933; }
+        .modal-content p { font-size: 1.1rem; color: #fff; }
+        .close-btn { 
+            margin-top: 20px; background: #b2d8e5; color: #223e5a; 
+            border: none; padding: 10px 30px; border-radius: 25px; 
+            font-weight: bold; cursor: pointer; transition: 0.3s;
+        }
+        .close-btn:hover { background: #fff; }
+
+        .social-container { display: flex; gap: 30px; margin-top: 25px; font-size: 3rem; }
+        .social-container a { color: #b2d8e5; text-decoration: none; transition: 0.4s; }
+        .social-container a:hover { color: #f1b933; transform: translateY(-10px); }
+
+        .home-btn {
+            background: #f1b933; color: #121420; padding: 12px 30px; 
+            border-radius: 30px; border: none; font-size: 1.1rem; 
+            cursor: pointer; font-family: inherit; transition: 0.3s;
+        }
+        .home-btn:hover { background: #fff; transform: scale(1.05); }
+    </style>
+</head>
+<body>
+
+    <div id="welcome-screen">
+        <div class="success-icon">✔</div>
+        <h1 style="font-size: 2.5rem;">Welcome!</h1>
+        <h4 style="opacity: 0.8; margin-top: 10px;">Just click here</h4>
+        <div onclick="enterWebsite()" class="back-link">← Go to Website</div>
+    </div>
+
+    <div id="infoModal" class="modal">
+        <div class="modal-content">
+            <h3 id="modalTitle">Achievement</h3>
+            <p id="modalDesc">Details go here...</p>
+            <button class="close-btn" onclick="closeModal()">Close</button>
+        </div>
+    </div>
+
+    <div id="main-content">
+        <nav>
+            <div class="logo">cloud</div>
+            <div class="nav-links">
+                <a onclick="showPage('home')" id="link-home" class="active">Home</a>
+                <a onclick="showPage('about')" id="link-about">About</a>
+                <a onclick="showPage('work')" id="link-work">Achievement</a>
+            </div>
+            <a onclick="showPage('contact-page')" class="contact-btn" style="cursor:pointer; background: #223e5a; color: whitesmoke; padding: 10px 25px; border-radius: 25px; text-decoration: none; font-weight: 600;">Contact</a>
+        </nav>
+
+        <section id="home" class="active">
+            <div class="image-placeholder">
+                <img src="FB_IMG_1771805441108.jpg" alt="Cloud Photo">
+            </div>
+            <div class="content-box" style="text-align: center;">
+                <h1>I’m Cloud</h1>
+                <p>My full name is Joshua D. Ardenia, <br>
+                but you can call me anything you want. <br>
+                You can even call me love if you want 😘.</p>
+                <p>Programming is not merely a technical skill; it is the ability to codify thought into reality.</p>
+                <button class="home-btn" onclick="showPage('about')">Proceed to About <i class="fas fa-arrow-right"></i></button>
+            </div>
+        </section>
+
+        <section id="about">
+            
+            <div class="gamer-card" style="border-color: #f1b933; margin-top: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(241, 185, 51, 0.3); padding-bottom: 10px; margin-bottom: 15px;">
+                    <span style="font-weight: 800; letter-spacing: 2px; color: #f1b933;">PERSONAL INFO</span>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div><p style="font-size: 0.7rem; color: #f1b933; margin-bottom: 5px;">AGE</p><p style="font-weight: 600;">17</p></div>
+                    <div><p style="font-size: 0.7rem; color: #f1b933; margin-bottom: 5px;">HOBBY</p><p style="font-weight: 600;"> Gaming</p></div>
+                    <div><p style="font-size: 0.7rem; color: #f1b933; margin-bottom: 5px;">LIKES TO WATCH</p><p style="font-weight: 600;">Anime & Sci-Fi</p></div>
+                    <div><p style="font-size: 0.7rem; color: #f1b933; margin-bottom: 5px;">VIBE</p><p style="font-weight: 600;">Chilling</p></div>
+                </div>
+            </div>
+
+            <div class="content-box" style="text-align: center;">
+                <h1>About Me</h1>
+                <p>Master of rotation in ML, but still trying to rotate my life in the right direction.<br>
+                Hard-scoping in CODM because I’m focused on the goal, not the distractions. <br>
+                <br>🎯
+                “Easier to clutch a 1v4 than to understand mixed signals.”</p>
+            </div>
+
+            <div class="gamer-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(178, 216, 229, 0.3); padding-bottom: 10px; margin-bottom: 15px;">
+                    <span style="font-weight: 800; letter-spacing: 2px; color: #b2d8e5;">PLAYER STATUS</span>
+                    <span style="font-size: 0.8rem; opacity: 0.7;">REGION: PH</span>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div><p style="font-size: 0.7rem; color: #b2d8e5; margin-bottom: 5px;">CODENAME</p><p style="font-weight: 600;">lloyddiee</p></div>
+                    <div><p style="font-size: 0.7rem; color: #b2d8e5; margin-bottom: 5px;">RANK</p><p style="font-weight: 600;">Legendary</p></div>
+                    <div><p style="font-size: 0.7rem; color: #b2d8e5; margin-bottom: 5px;">FAVORITE LOADOUT</p><p style="font-weight: 600;">Shotgun/ Rusher</p></div>
+                    <div><p style="font-size: 0.7rem; color: #b2d8e5; margin-bottom: 5px;">GAME</p><p style="font-weight: 600;">COD: Mobile</p></div>
+                </div>
+                <div style="margin-top: 20px; padding: 15px; background: rgba(178, 216, 229, 0.1); border-radius: 5px; border-left: 4px solid #b2d8e5;">
+                    <p style="font-style: italic; font-size: 0.95rem; color: #fff;">"Disconnected. Hindi lang ang internet ko, pati na rin tayo."</p>
+                </div>
+                <div class="image-placeholder"><img src="Screenshot_2026-03-11-06-43-05-99_6389d9300adb962bb97af6a1b43c5bd0.jpg" alt="CODM"></div>
+            </div>
+
+            <div class="content-box" style="text-align: center; margin-top: 50px;">
+                <p>Catch me in the Land of Dawn proving that high IQ beats a high rank every time. 🧠🔥.</p>
+            </div>
+
+            <div class="gamer-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(178, 216, 229, 0.3); padding-bottom: 10px; margin-bottom: 15px;">
+                    <span style="font-weight: 800; letter-spacing: 2px; color: #b2d8e5;">PLAYER STATUS</span>
+                    <span style="font-size: 0.8rem; opacity: 0.7;">REGION: PH</span>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div><p style="font-size: 0.7rem; color: #b2d8e5; margin-bottom: 5px;">CODENAME</p><p style="font-weight: 600;">zCloud</p></div>
+                    <div><p style="font-size: 0.7rem; color: #b2d8e5; margin-bottom: 5px;">RANK</p><p style="font-weight: 600;">Mythic Glory</p></div>
+                    <div><p style="font-size: 0.7rem; color: #b2d8e5; margin-bottom: 5px;">Main Role</p><p style="font-weight: 600;">Exp lane/Gold lane</p></div>
+                    <div><p style="font-size: 0.7rem; color: #b2d8e5; margin-bottom: 5px;">GAME</p><p style="font-weight: 600;">Mobile Legends</p></div>
+                </div>
+                <div style="margin-top: 20px; padding: 15px; background: rgba(178, 216, 229, 0.1); border-radius: 5px; border-left: 4px solid #b2d8e5;">
+                    <p style="font-style: italic; font-size: 0.95rem; color: #fff;">"Panalo sa Lima talo sa isa.."</p>
+                </div>
+                <div class="image-placeholder"><img src="Messenger_creation_8C22DBCE-35C5-42AA-AB19-E4D8CC556EEA.jpeg" alt="ML"></div>
+            </div>
+        </section>
+
+        <section id="work">
+            <div class="content-box" style="text-align: center;">
+                <h2>My Achievements</h2>
+                <p>Click the photos to see the story.</p>
+            </div>
+            
+            <div class="clickable-achievement" onclick="openModal('Academic Excellence.')">
+                <div class="image-placeholder"><img src="received_636792918898465.jpeg" alt="A1"></div>
+            </div>
+
+            <div class="clickable-achievement" onclick="openModal('Academic Excellence', 'Hard work pays off. Maintaining a strong academic performance while balancing my Life.')">
+                <div class="image-placeholder"><img src="received_875967647842273.jpeg" alt="A2"></div>
+            </div>
+
+            <div class="clickable-achievement" onclick="openModal('Won a Third place out of 200+ students.')">
+                <div class="image-placeholder"><img src="Messenger_creation_97E7985B-D567-4E1E-A2E2-94F989BEEAE8.jpeg" alt="A3"></div>
+            </div>
+
+            <div class="clickable-achievement" onclick="openModal('Graduated at Batia High School', 'With Outstanding in TLE.')">
+                <div class="image-placeholder"><img src="received_649896411252013.jpeg" alt="A4"></div>
+            </div>
+        </section>
+
+        <section id="contact-page">
+            <div class="content-box" style="text-align: center;">
+                <h1>Let's Connect</h1>
+                <div class="contact-info" style="margin-bottom: 30px;">
+                    <p><strong>Email:</strong> cloudchaise@gmail.com</p>
+                    <p><strong>Phone:</strong> 09364527200</p>
+                </div>
+                
+                <div class="social-container">
+                    <a href="https://www.facebook.com/share/17vW6DK1cx/" target="_blank" title="Facebook"><i class="fab fa-facebook"></i></a>
+                    <a href="https://www.tiktok.com/@chaisecloud" target="_blank" title="TikTok"><i class="fab fa-tiktok"></i></a>
+                    <a href="https://www.instagram.com/cloudardenia?igsh=N3UwMHJkam01dWEy" target="_blank" title="Instagram"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        function enterWebsite() {
+            document.getElementById('welcome-screen').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('welcome-screen').style.display = 'none';
+                document.getElementById('main-content').style.display = 'block';
+            }, 500);
+        }
+
+        function showPage(pageId) {
+            const sections = document.querySelectorAll('section');
+            sections.forEach(sec => sec.classList.remove('active'));
+            const links = document.querySelectorAll('.nav-links a');
+            links.forEach(link => link.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            if(document.getElementById('link-' + pageId)) {
+                document.getElementById('link-' + pageId).classList.add('active');
+            }
+            window.scrollTo(0, 0);
+        }
+
+        function openModal(title, description) {
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalDesc').innerText = description;
+            document.getElementById('infoModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('infoModal').style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            let modal = document.getElementById('infoModal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>
